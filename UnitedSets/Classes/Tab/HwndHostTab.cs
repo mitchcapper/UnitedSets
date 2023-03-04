@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -96,7 +96,7 @@ public class HwndHostTab : TabBase
     public override async void DetachAndDispose(bool JumpToCursor)
     {
         var Window = this.Window;
-        HwndHost.DetachAndDispose();
+        await HwndHost.DetachAndDispose();
         PInvoke.GetCursorPos(out var CursorPos);
         if (JumpToCursor && !HwndHost.NoMovingMode)
             Window.Location = new Point(CursorPos.X - 100, CursorPos.Y - 30);
