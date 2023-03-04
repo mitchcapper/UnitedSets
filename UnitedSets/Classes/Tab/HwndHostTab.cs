@@ -64,6 +64,7 @@ public class HwndHostTab : TabBase
         HwndHost.Closed += Closed;
         _Title = DefaultTitle;
         UpdateAppIcon();
+		LoadTabData(HwndHost);
     }
 	DispatcherQueue UIDispatcher;
 	public override void UpdateStatusLoop()
@@ -100,7 +101,8 @@ public class HwndHostTab : TabBase
     public override async void DetachAndDispose(bool JumpToCursor)
     {
         var Window = this.Window;
-        await HwndHost.DetachAndDispose();
+		SaveTabData(HwndHost);
+		await HwndHost.DetachAndDispose();
         PInvoke.GetCursorPos(out var CursorPos);
         if (JumpToCursor && !HwndHost.NoMovingMode)
             Window.Location = new Point(CursorPos.X - 100, CursorPos.Y - 30);

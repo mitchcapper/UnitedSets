@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
@@ -59,7 +59,10 @@ public partial class CellTab : TabBase
         //window.Tabs.Add(new CellTab(window, MainCell.DeepClone(window)));
         foreach (var cell in MainCell.AllSubCells)
         {
-            if (cell.CurrentCell is HwndHost hwndHost) hwndHost.DetachAndDispose();
+			if (cell.CurrentCell is HwndHost hwndHost) {
+				SaveTabData(hwndHost);
+				hwndHost.DetachAndDispose();
+			}
         }
         _IsDisposed = true;
         //window.Activate();
