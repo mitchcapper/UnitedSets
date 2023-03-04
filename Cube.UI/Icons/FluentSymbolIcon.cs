@@ -89,7 +89,8 @@ namespace Cube.UI.Icons
         /// </summary>
         public static Geometry GetPathData(FluentSymbol symbol)
         {
-            if (AllFluentIcons.TryGetValue(symbol, out string pathData))
+            string? pathData = GetFluentIcon(symbol);
+            if (pathData is not null)
             {
                 return (Geometry)Microsoft.UI.Xaml.Markup.XamlBindingHelper.ConvertValue(typeof(Geometry), pathData);
             }
