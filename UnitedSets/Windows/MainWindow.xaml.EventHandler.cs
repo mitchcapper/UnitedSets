@@ -107,10 +107,9 @@ public sealed partial class MainWindow : INotifyPropertyChanged
     {
         if (Keyboard.IsShiftDown)
         {
-            var newTab = new CellTab(this, IsAltTabVisible);
-            Tabs.Add(newTab);
-            TabView.SelectedItem = newTab;
-        }
+			LayoutManagerToggle();
+
+		}
         else
         {
             WindowEx.Minimize();
@@ -120,6 +119,12 @@ public sealed partial class MainWindow : INotifyPropertyChanged
             AddTab(result);
         }
     }
+	[CommunityToolkit.Mvvm.Input.RelayCommand]
+	public void LayoutManagerToggle() { 
+		var newTab = new CellTab(this, IsAltTabVisible);
+		Tabs.Add(newTab);
+		TabView.SelectedItem = newTab;
+	}
 
     LeftFlyout? MenuFlyout;
     // Use With OpenMenu
