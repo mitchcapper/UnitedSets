@@ -11,6 +11,7 @@ using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 #if UNPKG
 using System.IO;
@@ -34,8 +35,7 @@ public partial class SettingsService : ObservableObject
         {
             Name = "United Sets Settings Update Loop"
         }.Start();
-        s_window = new(this);
-        s_window.Closed += (_, _) => s_window = new(this);
+		CreateWindow();
     }
 #if !UNPKG
 private static readonly ApplicationDataContainer Settings = ApplicationData.Current.LocalSettings;
@@ -51,6 +51,18 @@ private static readonly ApplicationDataContainer Settings = ApplicationData.Curr
     [RelayCommand]
     public void LaunchSettings()
     {
-        s_window?.Activate();
-    }
+		try {
+			s_window?.Activate();
+		} catch (COMException) {
+			CreateWindow();
+			s_window.Activate();
+		}
+
+	}
+	
+
+	private void CreateWindow() {
+		s_window = new(this);
+		s_window.Closed += (_, _) => s_window = new(this);
+	}
 }
