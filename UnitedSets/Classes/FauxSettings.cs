@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-#if !UNPKG
+#if UNPKG
 
 namespace UnitedSets.Classes {
 	internal class FauxSettings {
