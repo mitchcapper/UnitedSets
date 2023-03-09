@@ -18,13 +18,18 @@
         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
         Padding="8">
-			<StackPanel Spacing="8" Margin="6,0,0,0" Orientation="Horizontal">
-				<Button ToolTipService.ToolTip="App Settings" VerticalAlignment="Center" Click="{x:Bind MainWindow.Settings.LaunchSettings}" Style="{ThemeResource ToolbarButton}" Padding="5">
-					<icons:FluentIconElement VerticalAlignment="Center" Symbol="Settings24" />
+			<StackPanel Spacing="8" Margin="6,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+				<StackPanel.Resources>
+					<Style TargetType="Button">
+						<Setter Property="VerticalAlignment" Value="Center" />
+						<Setter Property="Padding" Value="5" />
+					</Style>
+				</StackPanel.Resources>
+				<Button ToolTipService.ToolTip="App Settings" Click="{x:Bind MainWindow.Settings.LaunchSettings}" Style="{ThemeResource ToolbarButton}">
+					<SymbolIcon Symbol="Setting" />
 				</Button>
-				<Button ToolTipService.ToolTip="Modify Panel Layout" VerticalAlignment="Center" Click="{x:Bind MainWindow.LayoutManagerToggle}" Style="{ThemeResource ToolbarButton}"  Padding="5" >
-					<icons:FluentIconElement VerticalAlignment="Center" Symbol="SubGrid24" />
-					<!--Would have preferred  SlideGrid but not yet in -->
+				<Button ToolTipService.ToolTip="Modify Panel Layout" Click="{x:Bind MainWindow.LayoutManagerToggle}" Style="{ThemeResource ToolbarButton}">
+					<SymbolIcon Symbol="SelectAll" />
 				</Button>
 			</StackPanel>
         </Border>

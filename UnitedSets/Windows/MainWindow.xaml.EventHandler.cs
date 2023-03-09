@@ -32,6 +32,7 @@ using System.Diagnostics.CodeAnalysis;
 using UnitedSets.Windows.Flyout;
 using UnitedSets.Classes.Tabs;
 using UnitedSets.Windows.Flyout.Modules;
+using CommunityToolkit.WinUI;
 
 namespace UnitedSets.Windows;
 
