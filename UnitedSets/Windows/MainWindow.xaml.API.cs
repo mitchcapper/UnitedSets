@@ -40,12 +40,6 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 {
     public void AddTab(WindowEx newWindow, int? index = null)
     {
-        
-        // Check if United Sets has owner (United Sets in United Sets)
-        if (WindowEx.Root.Children.Any(x => x == newWindow))
-            return;
-        if (Tabs.ToArray().Any(x => x.Windows.Any(y => y == newWindow)))
-			return;
 		var newTab = JustCreateTab(newWindow);
 		if (newTab == null)
 			return;
@@ -65,6 +59,11 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 		if (newWindow.Handle == WindowEx.Handle)
 			return null;
 		if (HwndHost.ShouldBeBlacklisted(newWindow))
+			return null;
+		// Check if United Sets has owner (United Sets in United Sets)
+		if (WindowEx.Root.Children.Any(x => x == newWindow))
+			return null;
+		if (Tabs.ToArray().Any(x => x.Windows.Any(y => y == newWindow)))
 			return null;
 		return new HwndHostTab((IHwndHostParent tab) => new OurHwndHost(tab, this, newWindow),DispatcherQueue, newWindow, IsAltTabVisible);
 	}
