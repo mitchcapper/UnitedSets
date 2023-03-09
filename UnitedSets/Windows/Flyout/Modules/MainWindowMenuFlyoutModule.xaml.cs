@@ -1,4 +1,4 @@
-﻿using EasyCSharp;
+using EasyCSharp;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using UnitedSets.Classes.Tabs;
 using UnitedSets.Windows;
 using UnitedSets.Windows.Flyout;
+using CommunityToolkit.WinUI;
 
 namespace UnitedSets.Windows.Flyout.Modules;
 
@@ -40,11 +41,11 @@ public sealed partial class MainWindowMenuFlyoutModule : Grid, IWindowFlyoutModu
     [Event(typeof(RoutedEventHandler))]
     void SetTabsAside()
     {
-        var tabs = MainWindow.Tabs;
+        
         var tabgroup = new TabGroup($"Tabs {DateTime.Now:hh:mm:ss}");
-        foreach (var tab in tabs)
+		var tabs = MainWindow.GetTabsAndClear();
+		foreach (var tab in tabs)
             tabgroup.Tabs.Add(tab);
-        MainWindow.Tabs.Clear();
         MainWindow.HiddenTabs.Add(tabgroup);
     }
     [Event(typeof(SelectionChangedEventHandler))]
@@ -57,7 +58,7 @@ public sealed partial class MainWindowMenuFlyoutModule : Grid, IWindowFlyoutModu
     void ShowOnWindow([CastFrom(typeof(object))] FrameworkElement sender)
     {
         if (sender.Tag is not TabBase tab) return;
-        MainWindow.Tabs.Add(tab);
+        MainWindow.AddTab(tab);
         if (TabGroupListView.SelectedItem is TabGroup TabGroup)
             TabGroup.Tabs.Remove(tab);
     }
@@ -68,7 +69,7 @@ public sealed partial class MainWindowMenuFlyoutModule : Grid, IWindowFlyoutModu
         MainWindow.HiddenTabs.Remove(tabgroup);
         foreach (var tab in tabgroup.Tabs)
         {
-            MainWindow.Tabs.Add(tab);
+            MainWindow.AddTab(tab);
         }
     }
     [Event(typeof(RoutedEventHandler))]
@@ -157,14 +158,14 @@ public sealed partial class MainWindowMenuFlyoutModule : Grid, IWindowFlyoutModu
     {
         if (args.Items.Count is not 0) return;
         if (args.Items[0] is HwndHostTab item)
-            args.Data.SetData(MainWindow.UnitedSetsTabWindowDragProperty, (long)item.Window.Handle.Value);
+            args.Data.Properties.Add(MainWindow.UnitedSetsTabWindowDragProperty, (long)item.Window.Handle.Value);
     }
 
 
     [Event(typeof(DragEventHandler))]
     void OnDragItemOverTabListView(DragEventArgs e)
     {
-        if (e.DataView.AvailableFormats.Contains(MainWindow.UnitedSetsTabWindowDragProperty))
+        if (e.DataView.Properties.ContainsKey(MainWindow.UnitedSetsTabWindowDragProperty))
             e.AcceptedOperation = DataPackageOperation.Move;
     }
 #pragma warning restore CA1822 // Mark members as static
@@ -174,59 +175,46 @@ public sealed partial class MainWindowMenuFlyoutModule : Grid, IWindowFlyoutModu
         TabListView.SelectedItem = listviewitem.Tag;
     }
     [Event(typeof(DragEventHandler))]
-    async void OnDropItemOverTabListView(DragEventArgs e)
+    void OnDropItemOverTabListView(DragEventArgs e)
     {
         const string UnitedSetsTabWindowDragProperty = MainWindow.UnitedSetsTabWindowDragProperty;
 
-        if (e.DataView.AvailableFormats.Contains(UnitedSetsTabWindowDragProperty))
-        {
-            var pt = e.GetPosition(TabListView);
-            if (TabGroupListView.SelectedIndex is -1) return;
-            var tabgroup = MainWindow.HiddenTabs[TabGroupListView.SelectedIndex];
-            var a = (long)await e.DataView.GetDataAsync(UnitedSetsTabWindowDragProperty);
-            var window = Window.FromWindowHandle((nint)a);
-            var finalIdx = (
-                from index in Enumerable.Range(0, tabgroup.Tabs.Count)
-                let ele = TabListView.ContainerFromIndex(index) as UIElement
-                let posele = ele.TransformToVisual(TabListView).TransformPoint(default)
-                let size = ele.ActualSize
-                let IsMoreThanTopLeft = pt.X >= posele.X && pt.Y >= posele.Y
-                let IsLessThanBotRigh = pt.X <= posele.X + size.X && pt.Y <= posele.Y + size.Y
-                where IsMoreThanTopLeft && IsLessThanBotRigh
-                select (int?)index
-            ).FirstOrDefault();
-            TabBase? tabValue;
-            if (window.Owner != MainWindow.WindowEx)
-            {
-                var ret = PInvoke.SendMessage(window.Owner, MainWindow.UnitedSetCommunicationChangeWindowOwnership, new(), new(window));
-                tabValue = new HwndHostTab(MainWindow, window, MainWindow.IsAltTabVisible);
-            } else
-            {
-                tabValue = null;
-                foreach (var tab in MainWindow.Tabs)
-                {
-                    if (tab.Windows.Contains(window))
-                    {
-                        tabValue = tab;
-                        MainWindow.Tabs.Remove(tab);
-                    }
-                }
-                foreach (var tg in MainWindow.HiddenTabs)
-                {
-                    foreach (var tab in tg.Tabs)
-                    {
-                        if (tab.Windows.Contains(window))
-                        {
-                            tabValue = tab;
-                            tg.Tabs.Remove(tab);
-                        }
-                    }
-                }
-            }
-            if (tabValue is null) return;
-            if (finalIdx.HasValue)
-                tabgroup.Tabs.Insert(finalIdx.Value, tabValue);
-            else tabgroup.Tabs.Add(tabValue);
-        }
-    }
+		if (!e.DataView.Properties.TryGetValue(UnitedSetsTabWindowDragProperty, out var _a) || _a is long a == false)
+			return;
+		
+		var pt = e.GetPosition(TabListView);
+        if (TabGroupListView.SelectedIndex is -1)
+			return;
+        var tabgroup = MainWindow.HiddenTabs[TabGroupListView.SelectedIndex];
+        var window = Window.FromWindowHandle((nint)a);
+        var finalIdx = (
+            from index in Enumerable.Range(0, tabgroup.Tabs.Count)
+            let ele = TabListView.ContainerFromIndex(index) as UIElement
+            let posele = ele.TransformToVisual(TabListView).TransformPoint(default)
+            let size = ele.ActualSize
+            let IsMoreThanTopLeft = pt.X >= posele.X && pt.Y >= posele.Y
+            let IsLessThanBotRigh = pt.X <= posele.X + size.X && pt.Y <= posele.Y + size.Y
+            where IsMoreThanTopLeft && IsLessThanBotRigh
+            select (int?)index
+        ).FirstOrDefault();
+        TabBase? tabValue;
+		if (window.Owner != MainWindow.WindowEx) {
+			var ret = PInvoke.SendMessage(window.Owner, MainWindow.UnitedSetCommunicationChangeWindowOwnership, new(), new(window));
+			tabValue = MainWindow.JustCreateTab(window);
+		} else {
+			tabValue = MainWindow.FindTabByWindow(window);
+			if (tabValue != null)
+				MainWindow.RemoveTab(tabValue);
+
+			var hiddenResult = MainWindow.FindHiddenTabByWindow(window);
+			if (hiddenResult.tab != null) {
+				tabValue = hiddenResult.tab;
+				hiddenResult.group!.Tabs.Remove(tabValue);
+			}
+		}
+		if (tabValue is null) return;
+		if (finalIdx.HasValue)
+			tabgroup.Tabs.Insert(finalIdx.Value, tabValue);
+		else tabgroup.Tabs.Add(tabValue);
+	}
 }
