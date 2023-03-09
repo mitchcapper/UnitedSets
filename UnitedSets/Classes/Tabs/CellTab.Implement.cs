@@ -46,7 +46,7 @@ partial class CellTab
     {
         //var window = new MainWindow();
         //window.Tabs.Add(new CellTab(window, MainCell.DeepClone(window)));
-        foreach (var cell in MainCell.AllSubCells)
+        foreach (var cell in MainCell.AllSubCells.ToArray())
         {
 			cell.CurrentCell?.DetachAndDispose();
         }
