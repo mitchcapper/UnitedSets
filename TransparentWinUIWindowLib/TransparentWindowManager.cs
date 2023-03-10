@@ -244,9 +244,6 @@ namespace TransparentWinUIWindowLib {
 		}
 		private string background_file;
 		private bool EnableDragMoveAnywhere;
-		public void DoButtonThing() {
-			
-		}
 		public void AfterInitialize() {
 			HRESULT hr = HRESULT.S_OK;
 
@@ -333,7 +330,7 @@ namespace TransparentWinUIWindowLib {
 
 
 		private void Window_Closed(object sender, WindowEventArgs args) {
-			Clean();
+			Cleanup();
 		}
 		private int nX = 0, nY = 0, nXWindow = 0, nYWindow = 0;
 		private bool bMoving = false;
@@ -495,7 +492,11 @@ namespace TransparentWinUIWindowLib {
 		}
 
 		private Window window;
-		void Clean() {
+		private volatile bool cleaned = false;
+		public void Cleanup() {
+			if (cleaned)
+				return;
+			cleaned = true;
 			GlobalTools.SafeRelease(ref m_pD2DDeviceContext);
 			GlobalTools.SafeRelease(ref m_pDXGISwapChain1);
 
