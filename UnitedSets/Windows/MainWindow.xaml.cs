@@ -149,7 +149,6 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 			Tabs.Last().TabDoubleTapped(this, new Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs());
 		
 	}
-	private bool firstActivation;
 	private void TransparentSetup() {
 		var border = new Border {BorderThickness=new(10), Background=new SolidColorBrush(Color.FromArgb(0xdd,0xff,0xff,0xff)), CornerRadius=new(15,5,15,5), HorizontalAlignment=HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
 		border.BorderBrush = new LinearGradientBrush(new GradientStopCollection { new GradientStop { Color = Color.FromArgb(0x99, 0x87, 0xC7, 0xFF), Offset = 1 }, new GradientStop { Color = Color.FromArgb(0x99, 0x00, 0x00, 0x8b), Offset = 0 } }, 45);
@@ -158,20 +157,10 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 		Canvas.SetZIndex(border, -5);
 		MainAreaBorder.Margin = new(8, 0, 8, 8);
 		RootGrid.Children.Insert(0, border);
-		trans_mgr = new(this, swapChainPanel, System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"Assets\NearTransparentBG.png"), FeatureFlags.ENTIRE_WINDOW_DRAGGABLE);
+		trans_mgr = new(this, swapChainPanel, FeatureFlags.ENTIRE_WINDOW_DRAGGABLE);
 		trans_mgr.AfterInitialize();
 
 	}
-
-	private async void TransparentFinalize() {
-		var width = this.Width;
-		var height = this.Height;
-		trans_mgr.RemoveBorderSetTransparentMap();
-		Width = width;
-		Height = height;
-
-	}
-
 	
 	private void WireTabEvents(TabBase tab) {
 		tab.RemoveTab += TabRemoveRequest;
