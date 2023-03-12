@@ -149,6 +149,7 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 			Tabs.Last().TabDoubleTapped(this, new Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs());
 		
 	}
+	private bool firstActivation;
 	private void TransparentSetup() {
 		var border = new Border {BorderThickness=new(10), Background=new SolidColorBrush(Color.FromArgb(0xdd,0xff,0xff,0xff)), CornerRadius=new(15,5,15,5), HorizontalAlignment=HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
 		border.BorderBrush = new LinearGradientBrush(new GradientStopCollection { new GradientStop { Color = Color.FromArgb(0x99, 0x87, 0xC7, 0xFF), Offset = 1 }, new GradientStop { Color = Color.FromArgb(0x99, 0x00, 0x00, 0x8b), Offset = 0 } }, 45);
@@ -161,6 +162,9 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 		trans_mgr.AfterInitialize();
 
 	}
+
+
+
 	
 	private void WireTabEvents(TabBase tab) {
 		tab.RemoveTab += TabRemoveRequest;
